@@ -28,6 +28,16 @@ class BaseService {
       console.log('BaseService.searchById - error ', error);
     }
   }
+
+  searchByUser = async (userId) => {
+    try {
+      return this.model.find({ userCreator: userId });
+
+    } catch (error) {
+      console.log('RecipesService.searchByUser - error ', error)
+    }
+  }
+
   searchByIdAndPopulate = async (userId, opt) => {
     try {
       return await this.model.find({ _id: userId }).populate(opt)
@@ -51,6 +61,14 @@ class BaseService {
       return await this.model.findOneAndUpdate({ _id: id }, { ...body })
     } catch (error) {
       console.log('BaseService.update - error ', error);
+    }
+  }
+
+  delete = async (id) => {
+    try {
+      return await this.model.deleteOne({ _id: id })
+    } catch (error) {
+      console.log('BaseService.delete - error ', error);
     }
   }
 }
