@@ -33,19 +33,27 @@ class RecipesController {
     }
   }
 
+  _verifyUser = (receipe, currentUser) => {
+    const { userCreator } = receipe;
+    if (userCreator != currentUser) throw new Error('Usuário não autorizado')
+  }
+
   getByUserId = async (req, res) => {
     try {
       const { userId } = req.params;
 
-      const recipes = await UsersService.searchUserRecipes(userId);
+      const recipesIds = await RecipesService.searchByUser(userId);
 
-      const results = await Promise.all(recipes.map(recipe => RecipesService.searchById(recipe)));
+      const results = await Promise.all(recipesIds.map(recipeId => RecipesService.searchById(recipeId)));
 
       const response = await this._builderResponse(results);
 
       res.status(200).json(response);
     } catch (error) {
-      console.log('RecipesController.getByUserId - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
@@ -57,7 +65,10 @@ class RecipesController {
 
       res.status(200).json(results);
     } catch (error) {
-      console.log('RecipesController.getByRecipeId - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
@@ -69,35 +80,45 @@ class RecipesController {
 
       res.status(200).json(response);
     } catch (error) {
-      console.log('RecipesController.getAll - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
   getByName = async (req, res) => {
     try {
-      const { name } = req.params;
+      const { name } = req.query;
       const results = await RecipesService.searchRecipeByName(name);
 
       const response = await this._builderResponse(results);
 
       res.status(200).json(response);
     } catch (error) {
-      console.log('RecipesController.getByName - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
   getByNameAndUser = async (req, res) => {
-    try {
-      const { name, userId } = req.query;
-      console.log(req.query);
+    const { user } = req;
 
-      const results = await RecipesService.searchRecipeByNameAnsUser(name, userId);
+    try {
+      const { name } = req.query;
+
+      const results = await RecipesService.searchRecipeByNameAndUser(name, user.id);
 
       const response = await this._builderResponse(results);
 
       res.status(200).json(response);
     } catch (error) {
-      console.log('RecipesController.getByName - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
@@ -110,57 +131,68 @@ class RecipesController {
 
       res.status(200).json(response)
     } catch (error) {
-      console.log('RecipesController.filterRecipes - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
   create = async (req, res) => {
     try {
-      const { body } = req;
-      const { userCreator } = body;
+      const { body, user } = req;
 
-      const result = await RecipesService.create(body);
+      const recipeRequest = {
+        ...body,
+        userCreator: user.id
+      };
 
-      const userRecipes = await UsersService.searchUserRecipes(userCreator);
-      userRecipes.push(result._id);
-
-      await UsersService.update(userCreator, { recipes: userRecipes })
+      const result = await RecipesService.create(recipeRequest);
 
       res.status(200).json({ message: `Recipe with ID ${result._id} was create!` })
     } catch (error) {
-      console.log('RecipesController.filterRecipes - error ', error)
-    }
-  }
-
-  updateUserRecipes = async (req, res) => {
-    const { userId, recipeId } = req.params;
-
-    try {
-      const userRecipes = await UsersService.searchUserRecipes(userId);
-
-      const isRecipeAlredyAdd = userRecipes.filter(recipe => recipe == recipeId)[0]
-
-      if (isRecipeAlredyAdd) return res.status(400).json({ message: 'Recipe is alredy add.' })
-
-      userRecipes.push(recipeId);
-
-      await UsersService.update(userId, { recipes: userRecipes });
-
-      res.status(200).json({ message: `Recipe with ID ${recipeId} add with success!` })
-    } catch (error) {
-      console.log('RecipesController.updateUserRecipes - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível criar receita',
+      });
     }
   }
 
   update = async (req, res) => {
+    const { body, user, params: { recipeId } } = req;
+    const currentUsertoken = user.id;
+
     try {
-      const { body, params: { recipeId } } = req;
+      const receipe = await RecipesService.searchById(recipeId);
+      this._verifyUser(receipe, currentUsertoken)
 
       await RecipesService.update(recipeId, body)
 
       res.status(200).json({ message: `Recipe with ID ${recipeId} was update!` })
     } catch (error) {
-      console.log('RecipesController.filterRecipes - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível atualizar receita',
+      });
+    }
+  }
+
+  delete = async (req, res) => {
+    const { user, body } = req;
+
+    const currentUsertoken = user.id;
+    try {
+      const receipe = await RecipesService.searchById(body.recipeId);
+      this._verifyUser(receipe, currentUsertoken)
+
+      await RecipesService.delete(body.recipeId)
+
+      res.status(200).json({ message: `Recipe with ID ${body.recipeId} was delete!` })
+    } catch (error) {
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível deletar receita',
+      });
     }
   }
 }

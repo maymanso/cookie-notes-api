@@ -14,20 +14,11 @@ class RecipesService extends BaseService {
     }
   }
 
-  searchByUser = async (userId) => {
-    try {
-      return this.model.find({ userCreator: userId });
-
-    } catch (error) {
-      console.log('RecipesService.searchByUser - error ', error)
-    }
-  }
-
-  searchRecipeByNameAnsUser = async (nameRecipe, userId) => {
+  searchRecipeByNameAndUser = async (nameRecipe, userId) => {
     try {
       return this.model.find({ name: { "$regex": `${nameRecipe}`, "$options": "i" }, userCreator: userId })
     } catch (error) {
-      console.log('RecipesService.searchRecipeByNameAnsUser - error ', error)
+      console.log('RecipesService.searchRecipeByNameAndUser - error ', error)
     }
   }
 
