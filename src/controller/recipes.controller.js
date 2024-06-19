@@ -50,7 +50,10 @@ class RecipesController {
 
       res.status(200).json(response);
     } catch (error) {
-      console.log('RecipesController.getByUserId - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
@@ -62,7 +65,10 @@ class RecipesController {
 
       res.status(200).json(results);
     } catch (error) {
-      console.log('RecipesController.getByRecipeId - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
@@ -74,7 +80,10 @@ class RecipesController {
 
       res.status(200).json(response);
     } catch (error) {
-      console.log('RecipesController.getAll - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
@@ -87,7 +96,10 @@ class RecipesController {
 
       res.status(200).json(response);
     } catch (error) {
-      console.log('RecipesController.getByName - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
@@ -103,7 +115,10 @@ class RecipesController {
 
       res.status(200).json(response);
     } catch (error) {
-      console.log('RecipesController.getByName - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
@@ -116,7 +131,10 @@ class RecipesController {
 
       res.status(200).json(response)
     } catch (error) {
-      console.log('RecipesController.filterRecipes - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível encontrar receita',
+      });
     }
   }
 
@@ -133,7 +151,10 @@ class RecipesController {
 
       res.status(200).json({ message: `Recipe with ID ${result._id} was create!` })
     } catch (error) {
-      console.log('RecipesController.filterRecipes - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível criar receita',
+      });
     }
   }
 
@@ -149,7 +170,10 @@ class RecipesController {
 
       res.status(200).json({ message: `Recipe with ID ${recipeId} was update!` })
     } catch (error) {
-      console.log('RecipesController.filterRecipes - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível atualizar receita',
+      });
     }
   }
 
@@ -165,7 +189,10 @@ class RecipesController {
 
       res.status(200).json({ message: `Recipe with ID ${body.recipeId} was delete!` })
     } catch (error) {
-      console.log('RecipesController.delete - error ', error)
+      return res.status(400).json({
+        type: 'Bad Request',
+        message: 'Não foi possível deletar receita',
+      });
     }
   }
 }
