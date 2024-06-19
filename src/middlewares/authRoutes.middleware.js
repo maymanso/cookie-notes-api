@@ -1,7 +1,7 @@
 const webToken = require('../../utils/webToken.util');
 
 class AuthRoutesMiddleware {
-  protect = (req, res, next) => {
+  protect = async (req, res, next) => {
     const token = req.get('Authorization');
 
     if (!token) {
@@ -14,7 +14,7 @@ class AuthRoutesMiddleware {
     const tokenWithoutBearer = token.split(' ')[1];
 
     try {
-      const tokenInfo = webToken.verify(tokenWithoutBearer, process.env.JWT_HASH_SECRET);
+      const tokenInfo = await webToken.verify(tokenWithoutBearer);
 
       req.user = tokenInfo;
       return next();
