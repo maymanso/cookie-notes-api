@@ -12,6 +12,6 @@ router.use('/auth', authRouter);
 router.use(authRoutesMiddleware.protect);
 
 router.use('/user', userRouter);
-router.use('/', recipesRouter);
+router.use('/recipe', recipesRouter);
 
 module.exports = router;
